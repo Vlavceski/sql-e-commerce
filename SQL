@@ -1,0 +1,123 @@
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    price DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE cart (
+    cart_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    product_id INT,
+    quantity INT,
+    price DECIMAL(10, 2),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    product_id INT,
+    rating INT,
+    comment TEXT,
+    review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+
+INSERT INTO users (username, email, password) VALUES
+('john_doe', 'john@example.com', 'password123'),
+('jane_smith', 'jane@example.com', 'pass456'),
+('bob_jones', 'bob@example.com', 'secretword');
+
+INSERT INTO products (name, description, price) VALUES
+('Laptop', 'High-performance laptop with SSD', 999.99),
+('Smartphone', 'Latest smartphone with advanced features', 599.99),
+('Headphones', 'Wireless over-ear headphones with noise cancellation', 149.99);
+
+
+INSERT INTO orders (user_id) VALUES (1);
+
+
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 2, 999.99),
+(1, 2, 1, 599.99);
+
+INSERT INTO orders (user_id) VALUES (2);
+
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(2, 2, 1, 599.99),
+(2, 3, 1, 149.99);
+
+INSERT INTO cart (user_id, product_id, quantity, price) VALUES
+(3, 1, 1, 999.99),
+(3, 3, 2, 149.99);
+
+INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
+(1, 1, 5, 'Great laptop! Fast and reliable.');
+
+INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
+(2, 2, 4, 'Good smartphone with nice features.');
+
+INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
+(3, 3, 4, 'Excellent headphones with noise cancellation.');
+
+SELECT * FROM products;
+
+SELECT * FROM products WHERE product_id = 1;
+
+SELECT * FROM orders WHERE user_id = 1;
+
+SELECT o.order_id, p.name AS product_name, oi.quantity, oi.price
+FROM orders o
+JOIN order_items oi ON o.order_id = oi.order_id
+JOIN products p ON oi.product_id = p.product_id
+WHERE o.user_id = 1;
+
+
+SELECT user_id, SUM(oi.quantity * oi.price) AS total_spent
+FROM orders o
+JOIN order_items oi ON o.order_id = oi.order_id
+WHERE o.user_id = 1
+GROUP BY user_id;
+
+UPDATE products SET price = 24.99 WHERE product_id = 1;
+
+
+INSERT INTO orders (user_id) VALUES (1);
+
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 2, 39.99),
+(1, 2, 1, 24.99);
+
+SELECT product_id, AVG(rating) AS average_rating
+FROM reviews
+WHERE product_id = 1
+GROUP BY product_id;
